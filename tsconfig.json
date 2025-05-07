@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "declaration": true,
+        "declarationDir": "./dist",
+        "module": "CommonJS",
+        "target": "ES2023",
+        "esModuleInterop": true,
+        "strict": false,
+        "types": ["node", "ws"]
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
+}

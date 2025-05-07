@@ -1,0 +1,21 @@
+{
+  "name": "node-rotur",
+  "version": "0.0.5",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "description": "",
+  "dependencies": {
+    "ws": "^8.18.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.14",
+    "@types/ws": "^8.18.1"
+  }
+}
