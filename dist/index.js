@@ -25,9 +25,15 @@ function generateId(designation = 'rtr') {
 }
 class RoturClient extends node_events_1.EventEmitter {
     RoturSocket;
+    password;
+    username;
+    user_token;
     constructor() {
         super();
         this.RoturSocket = new ws_1.default('wss://ws.rotur.dev');
+        this.password = '';
+        this.username = '';
+        this.user_token = '';
         this.RoturSocket.on('open', () => {
             this.RoturSocket.on('message', (data) => {
                 try {
@@ -127,6 +133,7 @@ class RoturClient extends node_events_1.EventEmitter {
     }
     async login(username, password, callback) {
         try {
+            const p = crypto_1.default.createHash('md5').update(password).digest('hex');
             const succeed = await this.sendToRotur({
                 cmd: "pmsg",
                 val: {
@@ -138,8 +145,8 @@ class RoturClient extends node_events_1.EventEmitter {
                         version: "v5.5.4"
                     },
                     payload: [
-                        username,
-                        crypto_1.default.createHash('md5').update(password).digest('hex')
+                        this.username.length >= 1 ? this.username : username,
+                        this.password.length >= 1 ? this.password : p
                     ],
                     timestamp: Date.now()
                 },
@@ -151,7 +158,14 @@ class RoturClient extends node_events_1.EventEmitter {
                 ];
             });
             if (typeof callback === 'function') {
-                callback(succeed[0]);
+                callback(succeed[0], succeed[1]);
+            }
+            if (succeed[0]) {
+                this.password = p;
+                this.username = username;
+            }
+            if (typeof succeed[1] !== 'undefined') {
+                this.user_token = succeed[1];
             }
             return succeed[0];
         }
@@ -164,6 +178,7 @@ class RoturClient extends node_events_1.EventEmitter {
     // I just changed the login code lol
     async loginMD5(username, password, callback) {
         try {
+            const p = password;
             const succeed = await this.sendToRotur({
                 cmd: "pmsg",
                 val: {
@@ -175,8 +190,8 @@ class RoturClient extends node_events_1.EventEmitter {
                         version: "v5.5.4"
                     },
                     payload: [
-                        username,
-                        password
+                        this.username.length >= 1 ? this.username : username,
+                        this.password.length >= 1 ? this.password : p
                     ],
                     timestamp: Date.now()
                 },
@@ -188,7 +203,14 @@ class RoturClient extends node_events_1.EventEmitter {
                 ];
             });
             if (typeof callback === 'function') {
-                callback(succeed[0]);
+                callback(succeed[0], succeed[1]);
+            }
+            if (succeed[0]) {
+                this.password = p;
+                this.username = username;
+            }
+            if (typeof succeed[1] !== 'undefined') {
+                this.user_token = succeed[1];
             }
             return succeed[0];
         }
@@ -211,13 +233,45 @@ class RoturClient extends node_events_1.EventEmitter {
         }
         return succeed;
     }
-    async getUserData(username, password) {
+    async getUserData() {
         try {
-            return await axios_1.default.get(`https://social.rotur.dev/get_user?username=${username}&password=${password}`);
+            if (!this.user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return await axios_1.default.get(`https://social.rotur.dev/get_user?username=${this.username}&password=${this.password}`);
         }
         catch (e) {
             console.error(e);
             this.emit('error', e);
+        }
+    }
+    async transferCurrency(amount, recipient, note) {
+        try {
+            if (!this.user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return await this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    id: this.user_token,
+                    client: {
+                        system: "originOS",
+                        version: "v5.5.4"
+                    },
+                    payload: {
+                        recipient,
+                        amount,
+                        note
+                    },
+                    command: "currency_transfer"
+                },
+                id: "sys-rotur"
+            }, (parsed) => {
+                return parsed.val.payload === "Transfer Successful";
+            });
+        }
+        catch (e) {
+            console.error(e);
+            this.emit('error', e);
+            return false;
         }
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "node-rotur",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "type": "commonjs",
   "description": "",
   "dependencies": {

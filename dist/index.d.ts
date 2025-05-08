@@ -18,6 +18,8 @@ export type roturUnixMS = number;
 export type hexColourCode = string;
 export type timezone = string;
 export type md5HashedPassword = string;
+export type badge = string;
+export type banner_url = string;
 export interface transactionObject {
     amount: number;
     note: string;
@@ -47,8 +49,8 @@ export interface AccountObject {
     pfp: string;
     private: string | boolean;
     proxy: string;
-    "sys.badges": Array<string>;
-    "sys.banners": Array<string>;
+    "sys.badges": Array<badge>;
+    "sys.banners": Array<banner_url>;
     "sys.currency": number;
     "sys.friends": Array<roturUsername>;
     "sys.items": Array<roturItemID>;
@@ -69,6 +71,9 @@ export interface AccountObject {
 }
 export declare class RoturClient extends EventEmitter {
     RoturSocket: WebSocket;
+    private password;
+    private username;
+    private user_token;
     constructor();
     private inObj;
     private sendToRotur;
@@ -79,7 +84,8 @@ export declare class RoturClient extends EventEmitter {
     setID(id: string, callback?: (success: boolean) => void): Promise<boolean>;
     linkToRoom(room: string, callback?: (success: boolean) => void): Promise<boolean>;
     login(username: roturUsername, password: string, callback?: (success: boolean, token?: string) => void): Promise<boolean>;
-    loginMD5(username: roturUsername, password: string, callback?: (success: boolean, token?: string) => void): Promise<boolean>;
+    loginMD5(username: roturUsername, password: md5HashedPassword, callback?: (success: boolean, token?: string) => void): Promise<boolean>;
     auth(token: string, callback?: (success: boolean) => void): Promise<boolean>;
-    getUserData(username: roturUsername, password: md5HashedPassword): Promise<AccountObject>;
+    getUserData(): Promise<AccountObject>;
+    transferCurrency(amount: number, recipient: roturUsername, note?: string): Promise<boolean>;
 }
