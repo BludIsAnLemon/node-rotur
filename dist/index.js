@@ -8,6 +8,7 @@ exports.generateId = generateId;
 const ws_1 = __importDefault(require("ws"));
 const node_events_1 = require("node:events");
 const crypto_1 = __importDefault(require("crypto"));
+const axios_1 = __importDefault(require("axios"));
 /**
  * Utility.
  * Generates a pre-authorized username to use when setting your id.
@@ -209,6 +210,15 @@ class RoturClient extends node_events_1.EventEmitter {
             this.emit('authenticated');
         }
         return succeed;
+    }
+    async getUserData(username, password) {
+        try {
+            return await axios_1.default.get(`https://social.rotur.dev/get_user?username=${username}&password=${password}`);
+        }
+        catch (e) {
+            console.error(e);
+            this.emit('error', e);
+        }
     }
 }
 exports.RoturClient = RoturClient;

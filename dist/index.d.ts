@@ -8,9 +8,64 @@ import { EventEmitter } from "node:events";
  */
 export declare function generateId(designation?: string): string;
 export interface RoturEvents {
-    "data": (data: object | Array<any>) => void;
-    "error": (error: Error) => void;
-    "authenticated": () => void;
+    data: (data: object | Array<any>) => void;
+    error: (error: Error) => void;
+    authenticated: () => void;
+}
+export type roturUsername = string;
+export type roturItemID = string;
+export type roturUnixMS = number;
+export type hexColourCode = string;
+export type timezone = string;
+export type md5HashedPassword = string;
+export interface transactionObject {
+    amount: number;
+    note: string;
+    time: roturUnixMS;
+    type: "in" | "out" | "gamble" | "tax";
+    user: roturUsername;
+}
+export interface themeObject {
+    accent: hexColourCode;
+    background: hexColourCode;
+    primary: hexColourCode;
+    secondary: hexColourCode;
+    tertiary: hexColourCode;
+    text: hexColourCode;
+}
+export interface AccountObject {
+    banner: string;
+    bio: string;
+    created: roturUnixMS;
+    discord_id?: string;
+    email?: string;
+    hostOS: "Windows" | "Linux" | "MacOS" | "Unknown" | string | null;
+    last_login: roturUnixMS;
+    max_size: number;
+    onboot: Array<string>;
+    origin_doc: Array<string>;
+    pfp: string;
+    private: string | boolean;
+    proxy: string;
+    "sys.badges": Array<string>;
+    "sys.banners": Array<string>;
+    "sys.currency": number;
+    "sys.friends": Array<roturUsername>;
+    "sys.items": Array<roturItemID>;
+    "sys.links": object;
+    "sys.purchases": Array<roturItemID>;
+    "sys.requests": Array<roturUsername>;
+    "sys.roturbotMem": object | Array<any> | string | any;
+    "sys.total_logins": number;
+    "sys.transactions": Array<transactionObject | string>;
+    "sys.used_systems"?: string;
+    system: "originOS" | string;
+    theme: themeObject;
+    timezone: timezone;
+    used_size: number;
+    username: roturUsername;
+    wallpaper: string;
+    wallpaper_mode: "Fill" | "Center" | "Fit" | "Stretch" | string;
 }
 export declare class RoturClient extends EventEmitter {
     RoturSocket: WebSocket;
@@ -23,7 +78,8 @@ export declare class RoturClient extends EventEmitter {
     sendHandshake(callback?: (success: boolean) => void): Promise<boolean>;
     setID(id: string, callback?: (success: boolean) => void): Promise<boolean>;
     linkToRoom(room: string, callback?: (success: boolean) => void): Promise<boolean>;
-    login(username: string, password: string, callback?: (success: boolean, token?: string) => void): Promise<boolean>;
-    loginMD5(username: string, password: string, callback?: (success: boolean, token?: string) => void): Promise<boolean>;
+    login(username: roturUsername, password: string, callback?: (success: boolean, token?: string) => void): Promise<boolean>;
+    loginMD5(username: roturUsername, password: string, callback?: (success: boolean, token?: string) => void): Promise<boolean>;
     auth(token: string, callback?: (success: boolean) => void): Promise<boolean>;
+    getUserData(username: roturUsername, password: md5HashedPassword): Promise<AccountObject>;
 }
