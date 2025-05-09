@@ -99,6 +99,6 @@ export declare class RoturClient extends EventEmitter {
     sendRmail(recipient: roturUsername, title: string, body: string): Promise<boolean>;
     deleteOmail(index: number | "all"): Promise<boolean>;
     getOmails(): Promise<Array<Omail>>;
-    getOmailFromId(): Promise<Omail>;
+    getOmailFromId(id: number): Promise<Omail>;
     getOmailCount(): Promise<number>;
 }

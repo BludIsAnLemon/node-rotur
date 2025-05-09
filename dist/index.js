@@ -340,7 +340,7 @@ class RoturClient extends node_events_1.EventEmitter {
             return [];
         }
     }
-    async getOmailFromId() {
+    async getOmailFromId(id) {
         try {
             if (!this.#user_token)
                 throw new Error('You aren\'t authenticated yet!');
@@ -348,8 +348,8 @@ class RoturClient extends node_events_1.EventEmitter {
                 cmd: "pmsg",
                 val: {
                     source: 0,
-                    source_command: "omail_getid",
-                    username: "sys-rotur"
+                    command: "omail_getid",
+                    payload: id
                 }
             }, (data) => {
                 return data.val.payload[1] ?? {};
