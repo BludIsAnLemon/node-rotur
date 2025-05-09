@@ -69,11 +69,19 @@ export interface AccountObject {
     wallpaper: string;
     wallpaper_mode: "Fill" | "Center" | "Fit" | "Stretch" | string;
 }
+export interface OmailInfo {
+    recipient: roturUsername;
+    title: string;
+    timestamp: roturUnixMS;
+    from: roturUsername;
+}
+export interface Omail {
+    body?: string;
+    info?: OmailInfo;
+}
 export declare class RoturClient extends EventEmitter {
+    #private;
     RoturSocket: WebSocket;
-    private password;
-    private username;
-    private user_token;
     constructor();
     private inObj;
     private sendToRotur;
@@ -88,4 +96,9 @@ export declare class RoturClient extends EventEmitter {
     auth(token: string, callback?: (success: boolean) => void): Promise<boolean>;
     getUserData(): Promise<AccountObject>;
     transferCurrency(amount: number, recipient: roturUsername, note?: string): Promise<boolean>;
+    sendRmail(recipient: roturUsername, title: string, body: string): Promise<boolean>;
+    deleteOmail(index: number | "all"): Promise<boolean>;
+    getOmails(): Promise<Array<Omail>>;
+    getOmailFromId(): Promise<Omail>;
+    getOmailCount(): Promise<number>;
 }

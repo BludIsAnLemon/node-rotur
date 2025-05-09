@@ -25,15 +25,15 @@ function generateId(designation = 'rtr') {
 }
 class RoturClient extends node_events_1.EventEmitter {
     RoturSocket;
-    password;
-    username;
-    user_token;
+    #password;
+    #username;
+    #user_token;
     constructor() {
         super();
         this.RoturSocket = new ws_1.default('wss://ws.rotur.dev');
-        this.password = '';
-        this.username = '';
-        this.user_token = '';
+        this.#password = '';
+        this.#username = '';
+        this.#user_token = '';
         this.RoturSocket.on('open', () => {
             this.RoturSocket.on('message', (data) => {
                 try {
@@ -145,8 +145,8 @@ class RoturClient extends node_events_1.EventEmitter {
                         version: "v5.5.4"
                     },
                     payload: [
-                        this.username.length >= 1 ? this.username : username,
-                        this.password.length >= 1 ? this.password : p
+                        this.#username.length >= 1 ? this.#username : username,
+                        this.#password.length >= 1 ? this.#password : p
                     ],
                     timestamp: Date.now()
                 },
@@ -161,11 +161,11 @@ class RoturClient extends node_events_1.EventEmitter {
                 callback(succeed[0], succeed[1]);
             }
             if (succeed[0]) {
-                this.password = p;
-                this.username = username;
+                this.#password = p;
+                this.#username = username;
             }
             if (typeof succeed[1] !== 'undefined') {
-                this.user_token = succeed[1];
+                this.#user_token = succeed[1];
             }
             return succeed[0];
         }
@@ -190,8 +190,8 @@ class RoturClient extends node_events_1.EventEmitter {
                         version: "v5.5.4"
                     },
                     payload: [
-                        this.username.length >= 1 ? this.username : username,
-                        this.password.length >= 1 ? this.password : p
+                        this.#username.length >= 1 ? this.#username : username,
+                        this.#password.length >= 1 ? this.#password : p
                     ],
                     timestamp: Date.now()
                 },
@@ -206,11 +206,11 @@ class RoturClient extends node_events_1.EventEmitter {
                 callback(succeed[0], succeed[1]);
             }
             if (succeed[0]) {
-                this.password = p;
-                this.username = username;
+                this.#password = p;
+                this.#username = username;
             }
             if (typeof succeed[1] !== 'undefined') {
-                this.user_token = succeed[1];
+                this.#user_token = succeed[1];
             }
             return succeed[0];
         }
@@ -235,9 +235,9 @@ class RoturClient extends node_events_1.EventEmitter {
     }
     async getUserData() {
         try {
-            if (!this.user_token)
+            if (!this.#user_token)
                 throw new Error('You aren\'t authenticated yet!');
-            return await axios_1.default.get(`https://social.rotur.dev/get_user?username=${this.username}&password=${this.password}`);
+            return await axios_1.default.get(`https://social.rotur.dev/get_user?username=${this.#username}&password=${this.#password}`);
         }
         catch (e) {
             console.error(e);
@@ -246,12 +246,12 @@ class RoturClient extends node_events_1.EventEmitter {
     }
     async transferCurrency(amount, recipient, note) {
         try {
-            if (!this.user_token)
+            if (!this.#user_token)
                 throw new Error('You aren\'t authenticated yet!');
             return await this.sendToRotur({
                 cmd: "pmsg",
                 val: {
-                    id: this.user_token,
+                    id: this.#user_token,
                     client: {
                         system: "originOS",
                         version: "v5.5.4"
@@ -272,6 +272,113 @@ class RoturClient extends node_events_1.EventEmitter {
             console.error(e);
             this.emit('error', e);
             return false;
+        }
+    }
+    async sendRmail(recipient, title, body) {
+        try {
+            if (!this.#user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    source: 0,
+                    command: "omail_send",
+                    payload: {
+                        recipient,
+                        title,
+                        body
+                    }
+                }
+            }, (data) => {
+                return data.val.payload === "Successfully Sent Omail";
+            });
+        }
+        catch (e) {
+            console.error(e);
+            this.emit('error', e);
+            return false;
+        }
+    }
+    async deleteOmail(index) {
+        try {
+            if (!this.#user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    source: 0,
+                    command: "omail_delete",
+                    payload: index
+                }
+            }, (data) => {
+                return data.val.payload === "Deleted Successfully";
+            });
+        }
+        catch (e) {
+            console.error(e);
+            this.emit('error', e);
+            return false;
+        }
+    }
+    async getOmails() {
+        try {
+            if (!this.#user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    source: 0,
+                    command: "omail_getinfo"
+                }
+            }, (data) => {
+                return data?.val?.payload ?? [];
+            });
+        }
+        catch (e) {
+            console.error(e);
+            this.emit('error', e);
+            return [];
+        }
+    }
+    async getOmailFromId() {
+        try {
+            if (!this.#user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    source: 0,
+                    source_command: "omail_getid",
+                    username: "sys-rotur"
+                }
+            }, (data) => {
+                return data.val.payload[1] ?? {};
+            });
+        }
+        catch (e) {
+            console.error(e);
+            this.emit('error', e);
+            return {};
+        }
+    }
+    async getOmailCount() {
+        try {
+            if (!this.#user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    source: 0,
+                    command: "omail_total"
+                }
+            }, (data) => {
+                return data?.val?.payload ?? 0;
+            });
+        }
+        catch (e) {
+            console.error(e);
+            this.emit('error', e);
+            return 0;
         }
     }
 }
