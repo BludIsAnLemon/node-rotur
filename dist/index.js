@@ -40,6 +40,14 @@ class RoturClient extends node_events_1.EventEmitter {
                     const stringifiedData = data.toString();
                     const parsedData = JSON.parse(stringifiedData);
                     this.emit('data', parsedData);
+                    switch (parsedData?.cmd) {
+                        case 'pmsg':
+                            this.emit('private_message', parsedData?.val);
+                            break;
+                        case 'gmsg':
+                            this.emit('global_message', parsedData?.val);
+                            break;
+                    }
                 }
                 catch (e) {
                     this.emit('error', e);

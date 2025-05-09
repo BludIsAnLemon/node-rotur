@@ -11,6 +11,8 @@ export interface RoturEvents {
     data: (data: object | Array<any>) => void;
     error: (error: Error) => void;
     authenticated: () => void;
+    private_message: (message?: string | Array<any> | object | any) => void;
+    global_message: (message?: string | Array<any> | object | any) => void;
 }
 export type roturUsername = string;
 export type roturItemID = string;
