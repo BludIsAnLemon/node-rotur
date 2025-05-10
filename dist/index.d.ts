@@ -103,4 +103,8 @@ export declare class RoturClient extends EventEmitter {
     getOmails(): Promise<Array<Omail>>;
     getOmailFromId(id: number): Promise<Omail>;
     getOmailCount(): Promise<number>;
+    sendFriendRequest(friend: roturUsername): Promise<boolean>;
+    removeFriend(friend: roturUsername): Promise<boolean>;
+    acceptFriendRequest(friend: roturUsername): Promise<boolean>;
+    declineFriendRequest(friend: roturUsername): Promise<boolean>;
 }

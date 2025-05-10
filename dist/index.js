@@ -179,7 +179,6 @@ class RoturClient extends node_events_1.EventEmitter {
         }
         catch (e) {
             this.emit('error', e);
-            console.error(e);
             return false;
         }
     }
@@ -224,7 +223,6 @@ class RoturClient extends node_events_1.EventEmitter {
         }
         catch (e) {
             this.emit('error', e);
-            console.error(e);
             return false;
         }
     }
@@ -248,7 +246,6 @@ class RoturClient extends node_events_1.EventEmitter {
             return await axios_1.default.get(`https://social.rotur.dev/get_user?username=${this.#username}&password=${this.#password}`);
         }
         catch (e) {
-            console.error(e);
             this.emit('error', e);
         }
     }
@@ -277,7 +274,6 @@ class RoturClient extends node_events_1.EventEmitter {
             });
         }
         catch (e) {
-            console.error(e);
             this.emit('error', e);
             return false;
         }
@@ -286,7 +282,7 @@ class RoturClient extends node_events_1.EventEmitter {
         try {
             if (!this.#user_token)
                 throw new Error('You aren\'t authenticated yet!');
-            return this.sendToRotur({
+            return await this.sendToRotur({
                 cmd: "pmsg",
                 val: {
                     source: 0,
@@ -302,7 +298,6 @@ class RoturClient extends node_events_1.EventEmitter {
             });
         }
         catch (e) {
-            console.error(e);
             this.emit('error', e);
             return false;
         }
@@ -311,7 +306,7 @@ class RoturClient extends node_events_1.EventEmitter {
         try {
             if (!this.#user_token)
                 throw new Error('You aren\'t authenticated yet!');
-            return this.sendToRotur({
+            return await this.sendToRotur({
                 cmd: "pmsg",
                 val: {
                     source: 0,
@@ -323,7 +318,6 @@ class RoturClient extends node_events_1.EventEmitter {
             });
         }
         catch (e) {
-            console.error(e);
             this.emit('error', e);
             return false;
         }
@@ -332,7 +326,7 @@ class RoturClient extends node_events_1.EventEmitter {
         try {
             if (!this.#user_token)
                 throw new Error('You aren\'t authenticated yet!');
-            return this.sendToRotur({
+            return await this.sendToRotur({
                 cmd: "pmsg",
                 val: {
                     source: 0,
@@ -343,7 +337,6 @@ class RoturClient extends node_events_1.EventEmitter {
             });
         }
         catch (e) {
-            console.error(e);
             this.emit('error', e);
             return [];
         }
@@ -352,7 +345,7 @@ class RoturClient extends node_events_1.EventEmitter {
         try {
             if (!this.#user_token)
                 throw new Error('You aren\'t authenticated yet!');
-            return this.sendToRotur({
+            return await this.sendToRotur({
                 cmd: "pmsg",
                 val: {
                     source: 0,
@@ -364,7 +357,6 @@ class RoturClient extends node_events_1.EventEmitter {
             });
         }
         catch (e) {
-            console.error(e);
             this.emit('error', e);
             return {};
         }
@@ -373,7 +365,7 @@ class RoturClient extends node_events_1.EventEmitter {
         try {
             if (!this.#user_token)
                 throw new Error('You aren\'t authenticated yet!');
-            return this.sendToRotur({
+            return await this.sendToRotur({
                 cmd: "pmsg",
                 val: {
                     source: 0,
@@ -384,9 +376,107 @@ class RoturClient extends node_events_1.EventEmitter {
             });
         }
         catch (e) {
-            console.error(e);
             this.emit('error', e);
             return 0;
+        }
+    }
+    async sendFriendRequest(friend) {
+        try {
+            if (!this.#user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            if (friend == this.#username)
+                throw new Error('You can\' send yourself a friend request!');
+            return await this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    command: "friend_request",
+                    client: {
+                        system: "originOS",
+                        version: "v5.5.4"
+                    },
+                    payload: friend,
+                    id: this.#user_token
+                },
+                id: "sys-rotur"
+            }, (data) => {
+                return data?.val?.payload === "Sent successfully";
+            });
+        }
+        catch (e) {
+            this.emit('error', e);
+            return false;
+        }
+    }
+    async removeFriend(friend) {
+        try {
+            if (!this.#user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return await this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    command: "friend_remove",
+                    client: {
+                        system: "originOS",
+                        version: "v5.5.4"
+                    },
+                    payload: friend
+                },
+                id: "sys-rotur"
+            }, (data) => {
+                return data?.val?.payload === "Friend Removed";
+            });
+        }
+        catch (e) {
+            this.emit('error', e);
+            return false;
+        }
+    }
+    async acceptFriendRequest(friend) {
+        try {
+            if (!this.#user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return await this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    command: "friend_accept",
+                    client: {
+                        system: "originOS",
+                        version: "v5.5.4"
+                    },
+                    payload: friend
+                },
+                id: "sys-rotur"
+            }, (data) => {
+                return data?.val?.payload === "Request Accepted";
+            });
+        }
+        catch (e) {
+            this.emit('error', e);
+            return false;
+        }
+    }
+    async declineFriendRequest(friend) {
+        try {
+            if (!this.#user_token)
+                throw new Error('You aren\'t authenticated yet!');
+            return await this.sendToRotur({
+                cmd: "pmsg",
+                val: {
+                    command: "friend_decline",
+                    client: {
+                        system: "originOS",
+                        version: "v5.5.4"
+                    },
+                    payload: friend
+                },
+                id: "sys-rotur"
+            }, (data) => {
+                return data?.val?.payload === "Request Declined";
+            });
+        }
+        catch (e) {
+            this.emit('error', e);
+            return false;
         }
     }
 }
